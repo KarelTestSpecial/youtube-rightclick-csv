@@ -14,7 +14,7 @@ function normalizeAndSave(videoDetails) {
     chrome.storage.local.get({ videoList: [] }, (data) => {
       const videoList = data.videoList;
       if (!videoList.some(video => video.url === finalDetails.url)) {
-        videoList.push(finalDetails);
+        videoList.unshift(finalDetails);
         chrome.storage.local.set({ videoList }, () => console.log("Video added:", finalDetails.title));
       } else {
         console.log("Video already in list:", finalDetails.title);

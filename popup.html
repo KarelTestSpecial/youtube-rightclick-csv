@@ -4,18 +4,39 @@
   <title>YouTube Rightclick</title>
   <style>
     body { width: 400px; font-family: sans-serif; padding: 10px; }
-    textarea { width: 100%; height: 180px; margin-bottom: 10px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; margin-top: 5px; cursor: pointer; border: 1px solid #ccc; background-color: #f0f0f0; }
+    h1 { font-size: 16px; margin-top: 0; }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; box-sizing: border-box; font-family: monospace; font-size: 12px; }
+    button { width: auto; padding: 8px 12px; margin-top: 5px; cursor: pointer; border: 1px solid #ccc; background-color: #f0f0f0; }
     button:disabled { cursor: not-allowed; background-color: #fafafa; color: #999; }
-    #addCurrentVideoButton { background-color: #cce5ff; }
+    #addCurrentVideoButton { background-color: #cce5ff; width: 100%; padding: 10px; }
+    .list-management, .new-list-form { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .list-management select { flex-grow: 1; padding: 5px; }
+    .new-list-form input { flex-grow: 1; padding: 5px; }
+    hr { margin: 15px 0; }
   </style>
 </head>
 <body>
-  <button id="addCurrentVideoButton" disabled>Add Current Video</button>
-  <hr style="margin: 15px 0;">
-  <textarea id="csvOutput" readonly placeholder="Your list is empty. Add videos via right-click or the button above."></textarea>
+  <h1>My Video Lists</h1>
+
+  <div class="list-management">
+    <select id="listSelector"></select>
+    <button id="deleteListButton" title="Delete selected list">🗑️</button>
+  </div>
+
+  <div class="new-list-form">
+    <input type="text" id="newListName" placeholder="Create new list...">
+    <button id="addListButton">+</button>
+  </div>
+
+  <hr>
+
+  <button id="addCurrentVideoButton" disabled>Add Current Video to Selected List</button>
+
+  <textarea id="videoOutput" readonly placeholder="This list is empty."></textarea>
+
   <button id="copyButton">Copy to Clipboard</button>
-  <button id="clearButton">Clear List</button>
+  <button id="clearButton">Clear This List</button>
+
   <script src="popup.js"></script>
 </body>
 </html>

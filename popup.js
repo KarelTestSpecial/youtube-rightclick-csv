@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCurrentVideoButton = document.getElementById('addCurrentVideoButton');
     const videoOutput = document.getElementById('videoOutput');
     const copyButton = document.getElementById('copyButton');
+    const downloadButton = document.getElementById('downloadButton');
     const clearButton = document.getElementById('clearButton');
 
     // --- State & Render ---
@@ -38,8 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Update Button States
-        copyButton.disabled = currentVideos.length === 0;
-        clearButton.disabled = currentVideos.length === 0;
+        const isListEmpty = currentVideos.length === 0;
+        copyButton.disabled = isListEmpty;
+        downloadButton.disabled = isListEmpty;
+        clearButton.disabled = isListEmpty;
         deleteListButton.disabled = listNames.length <= 1; // Can't delete the last list
         videoOutput.placeholder = `List "${activeList}" is empty.`;
     };
@@ -130,6 +133,29 @@ document.addEventListener('DOMContentLoaded', () => {
             videoOutput.select();
             document.execCommand('copy');
         }
+    });
+
+    // Download the active list as a text file
+    downloadButton.addEventListener('click', () => {
+        const { activeList, lists } = state;
+        const videos = lists[activeList] || [];
+        if (videos.length === 0) return;
+
+        const content = videoOutput.value;
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        // Sanitize filename
+        const safeFilename = activeList.replace(/[^a-z0-9- ._]/gi, '_') + '.txt';
+
+        chrome.downloads.download({
+            url: url,
+            filename: safeFilename,
+            saveAs: true // Ask user where to save
+        }, () => {
+            // After the download API is called, revoke the URL to free up memory.
+            URL.revokeObjectURL(url);
+        });
     });
 
     // Clear all videos from the active list

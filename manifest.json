@@ -7,7 +7,8 @@
     "contextMenus",
     "storage",
     "scripting",
-    "tabs"
+    "tabs",
+    "downloads"
   ],
   "host_permissions": [
     "*://www.youtube.com/*"

@@ -13,6 +13,27 @@
     .list-management select { flex-grow: 1; padding: 5px; }
     .new-list-form input { flex-grow: 1; padding: 5px; }
     hr { margin: 15px 0; }
+    .context-menu {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 5px 0;
+      z-index: 100;
+    }
+    .context-menu button {
+      display: block;
+      width: 100%;
+      padding: 8px 15px;
+      text-align: left;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .context-menu button:hover {
+      background-color: #eee;
+    }
   </style>
 </head>
 <body>
@@ -33,6 +54,11 @@
   <button id="addCurrentVideoButton" disabled>Add Current Video to Selected List</button>
 
   <textarea id="videoOutput" readonly placeholder="This list is empty."></textarea>
+
+  <div id="contextMenu" class="context-menu">
+    <button id="menuGoToButton">Go to Video</button>
+    <button id="menuDeleteButton">Delete</button>
+  </div>
 
   <button id="copyButton">Copy to Clipboard</button>
   <button id="downloadButton">Download List</button>

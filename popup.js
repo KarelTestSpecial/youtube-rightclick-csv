@@ -184,40 +184,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Advanced Features ---
-    // Delete a specific record on click
-    videoOutput.addEventListener('click', () => {
+    // --- Context Menu Logic ---
+    const contextMenu = document.getElementById('contextMenu');
+    const menuGoToButton = document.getElementById('menuGoToButton');
+    const menuDeleteButton = document.getElementById('menuDeleteButton');
+    let selectedRecordIndex = -1;
+
+    // Show context menu on click
+    videoOutput.addEventListener('click', (e) => {
         const text = videoOutput.value;
         if (!text) return;
 
         const cursorPosition = videoOutput.selectionStart;
-
-        // Find which line was clicked
         const lineNumber = text.substr(0, cursorPosition).split('\n').length - 1;
-
-        // Each record is 3 lines (title, url, empty line)
-        const recordIndex = Math.floor(lineNumber / 3);
+        selectedRecordIndex = Math.floor(lineNumber / 3);
 
         const currentVideos = state.lists[state.activeList];
-        if (recordIndex < 0 || recordIndex >= currentVideos.length) {
-            return; // Click was not on a valid record
+        if (selectedRecordIndex < 0 || selectedRecordIndex >= currentVideos.length) {
+            contextMenu.style.display = 'none';
+            return;
         }
 
         // Highlight the clicked record
         const recordsAsText = text.split('\n\n');
         let startPos = 0;
-        for (let i = 0; i < recordIndex; i++) {
-            startPos += recordsAsText[i].length + 2; // +2 for the '\n\n'
+        for (let i = 0; i < selectedRecordIndex; i++) {
+            startPos += recordsAsText[i].length + 2;
         }
-        const endPos = startPos + recordsAsText[recordIndex].length;
+        const endPos = startPos + recordsAsText[selectedRecordIndex].length;
         videoOutput.setSelectionRange(startPos, endPos);
 
-        // Ask for confirmation
-        if (confirm(`Wil u dit record verwijderen?\n\n${recordsAsText[recordIndex]}`)) {
-            const updatedVideos = [...currentVideos];
-            updatedVideos.splice(recordIndex, 1);
-            const newLists = { ...state.lists, [state.activeList]: updatedVideos };
-            chrome.storage.local.set({ lists: newLists });
+        // Position and show the menu
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.style.display = 'block';
+    });
+
+    // Hide context menu when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (!videoOutput.contains(e.target)) {
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // Action: Go to video
+    menuGoToButton.addEventListener('click', () => {
+        if (selectedRecordIndex !== -1) {
+            const video = state.lists[state.activeList][selectedRecordIndex];
+            if (video && video.url) {
+                chrome.tabs.create({ url: video.url });
+            }
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // Action: Delete record
+    menuDeleteButton.addEventListener('click', () => {
+        if (selectedRecordIndex !== -1) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                const updatedVideos = [...state.lists[state.activeList]];
+                updatedVideos.splice(selectedRecordIndex, 1);
+                const newLists = { ...state.lists, [state.activeList]: updatedVideos };
+                chrome.storage.local.set({ lists: newLists });
+            }
+            contextMenu.style.display = 'none';
         }
     });
 });

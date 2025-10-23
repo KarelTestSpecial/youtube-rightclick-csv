@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Rightclick",
-  "version": "2.2.5",
+  "version": "2.3.0",
   "description": "Easily add YouTube video URLs to a CSV list via right-click or toolbar button. Quick capture for content curators & researchers.",
   "permissions": [
     "contextMenus",

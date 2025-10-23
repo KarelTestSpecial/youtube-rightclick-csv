@@ -11,11 +11,22 @@ function normalizeAndSave(videoDetails) {
     if (!videoId) { return; }
     const cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
     const finalDetails = { title: videoDetails.title.trim(), url: cleanUrl };
-    chrome.storage.local.get({ videoList: [] }, (data) => {
-      const videoList = data.videoList;
-      if (!videoList.some(video => video.url === finalDetails.url)) {
-        videoList.unshift(finalDetails);
-        chrome.storage.local.set({ videoList }, () => console.log("Video added:", finalDetails.title));
+
+    // Get the current data structure
+    chrome.storage.local.get({ lists: {}, activeList: 'Default List' }, (data) => {
+      let { lists, activeList } = data;
+
+      // Ensure the active list exists
+      if (!lists[activeList]) {
+        lists[activeList] = [];
+      }
+
+      // Add video if it's not already in the list
+      if (!lists[activeList].some(video => video.url === finalDetails.url)) {
+        lists[activeList].unshift(finalDetails);
+        chrome.storage.local.set({ lists }, () => {
+          console.log(`Video added to list "${activeList}":`, finalDetails.title);
+        });
       } else {
         console.log("Video already in list:", finalDetails.title);
       }
@@ -62,16 +73,57 @@ function getTitleForVideoId(videoId) {
 // --- Event Listeners ---
 
 chrome.runtime.onInstalled.addListener(() => {
+  // 1. Create Context Menu
   chrome.contextMenus.create({
-    id: "addToCSV",
-    title: "Add video to CSV",
+    id: "addToList", // Changed ID for clarity
+    title: "Add video to active list",
     contexts: ["page", "link", "image", "video"],
     documentUrlPatterns: ["*://www.youtube.com/*"]
   });
+
+  // 2. Data Migration from old format
+  chrome.storage.local.get('videoList', (data) => {
+    // If the old `videoList` exists, migrate it.
+    if (data && data.videoList) {
+      console.log("Old videoList found, migrating to new data structure.");
+      const oldList = data.videoList;
+      // Check if there's already a new structure
+      chrome.storage.local.get({ lists: {}, activeList: '' }, (newData) => {
+        let { lists } = newData;
+        // To prevent data loss on re-installation/update, we merge.
+        // A more robust migration might use a version flag.
+        lists['Imported List'] = [...(lists['Imported List'] || []), ...oldList];
+
+        const newStructure = {
+          lists: lists,
+          activeList: 'Imported List' // Set the imported list as active
+        };
+
+        chrome.storage.local.set(newStructure, () => {
+          // Remove the old list after successful migration
+          chrome.storage.local.remove('videoList', () => {
+            console.log("Migration complete. Old videoList removed.");
+          });
+        });
+      });
+    } else {
+       // If no old list, ensure a default list exists on first install
+       chrome.storage.local.get({ lists: null }, (data) => {
+        if (data.lists === null) { // Only run if 'lists' has never been set
+            console.log("First time installation. Setting up default list.");
+            chrome.storage.local.set({
+                lists: { 'Default List': [] },
+                activeList: 'Default List'
+            });
+        }
+       });
+    }
+  });
 });
 
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId !== "addToCSV") return;
+    if (info.menuItemId !== "addToList") return;
     let videoId = null;
     if (info.mediaType === 'image' && info.srcUrl && info.srcUrl.includes('ytimg.com/vi/')) {
         const parts = info.srcUrl.split('/');

@@ -127,12 +127,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Copy videos from the active list
+    // Copy videos from the active list as TSV
     copyButton.addEventListener('click', () => {
-        if(videoOutput.value) {
+        const { activeList, lists } = state;
+        const videos = lists[activeList] || [];
+        if (videos.length === 0) return;
+
+        const tsvContent = videos.map(v => `${v.title}\t${v.url}`).join('\n');
+
+        navigator.clipboard.writeText(tsvContent).then(() => {
+            // Optional: Provide user feedback
+            const originalText = copyButton.textContent;
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = originalText;
+            }, 1500);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            // Fallback for older browsers by temporarily modifying the textarea
+            const originalContent = videoOutput.value;
+            videoOutput.value = tsvContent;
             videoOutput.select();
             document.execCommand('copy');
-        }
+            videoOutput.value = originalContent; // Restore original view
+        });
     });
 
     // Download the active list as a text file
@@ -162,6 +180,43 @@ document.addEventListener('DOMContentLoaded', () => {
     clearButton.addEventListener('click', () => {
         if (confirm(`Are you sure you want to clear all videos from "${state.activeList}"?`)) {
             const newLists = { ...state.lists, [state.activeList]: [] };
+            chrome.storage.local.set({ lists: newLists });
+        }
+    });
+
+    // --- Advanced Features ---
+    // Delete a specific record on click
+    videoOutput.addEventListener('click', () => {
+        const text = videoOutput.value;
+        if (!text) return;
+
+        const cursorPosition = videoOutput.selectionStart;
+
+        // Find which line was clicked
+        const lineNumber = text.substr(0, cursorPosition).split('\n').length - 1;
+
+        // Each record is 3 lines (title, url, empty line)
+        const recordIndex = Math.floor(lineNumber / 3);
+
+        const currentVideos = state.lists[state.activeList];
+        if (recordIndex < 0 || recordIndex >= currentVideos.length) {
+            return; // Click was not on a valid record
+        }
+
+        // Highlight the clicked record
+        const recordsAsText = text.split('\n\n');
+        let startPos = 0;
+        for (let i = 0; i < recordIndex; i++) {
+            startPos += recordsAsText[i].length + 2; // +2 for the '\n\n'
+        }
+        const endPos = startPos + recordsAsText[recordIndex].length;
+        videoOutput.setSelectionRange(startPos, endPos);
+
+        // Ask for confirmation
+        if (confirm(`Wil u dit record verwijderen?\n\n${recordsAsText[recordIndex]}`)) {
+            const updatedVideos = [...currentVideos];
+            updatedVideos.splice(recordIndex, 1);
+            const newLists = { ...state.lists, [state.activeList]: updatedVideos };
             chrome.storage.local.set({ lists: newLists });
         }
     });

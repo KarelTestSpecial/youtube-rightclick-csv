@@ -222,7 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hide context menu when clicking elsewhere
     document.addEventListener('click', (e) => {
-        if (!videoOutput.contains(e.target)) {
+        // Hide if the click is NOT on the textarea and NOT inside the context menu
+        if (e.target !== videoOutput && !contextMenu.contains(e.target)) {
             contextMenu.style.display = 'none';
         }
     });
@@ -234,20 +235,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (video && video.url) {
                 chrome.tabs.create({ url: video.url });
             }
-            contextMenu.style.display = 'none';
         }
+        contextMenu.style.display = 'none';
     });
 
     // Action: Delete record
     menuDeleteButton.addEventListener('click', () => {
         if (selectedRecordIndex !== -1) {
+            // Hide the menu before showing the confirmation dialog to prevent rendering issues.
+            contextMenu.style.display = 'none';
+
             if (confirm('Are you sure you want to delete this record?')) {
                 const updatedVideos = [...state.lists[state.activeList]];
                 updatedVideos.splice(selectedRecordIndex, 1);
                 const newLists = { ...state.lists, [state.activeList]: updatedVideos };
                 chrome.storage.local.set({ lists: newLists });
             }
-            contextMenu.style.display = 'none';
         }
     });
 });

@@ -1,26 +1,41 @@
 # YouTube Rightclick
 
-A simple browser extension that lets you quickly save YouTube video URLs to a list. Perfect for content curators, researchers, or anyone who needs to collect multiple video links without breaking their workflow.
+**Effortless Video Curation for YouTube**
 
-## Features
+A powerful browser extension designed for content curators, researchers, and anyone who needs to quickly collect and organize YouTube videos. Save videos to multiple custom lists without ever interrupting your workflow.
 
-- **One-Click Saving:** Add YouTube videos to your list via a simple right-click context menu.
-- **Save from Anywhere:** Works on YouTube's homepage, subscription feeds, search results, and on the video watch page itself.
-- **Popup Interface:** A clean and simple popup to view your list, add the currently watched video, copy the list to your clipboard, or clear it.
-- **CSV Formatting:** The list is automatically formatted as a CSV (`"Title","URL"`), ready to be pasted into a spreadsheet.
-- **Local Storage:** Your video list is saved locally and privately on your computer.
+## Key Features
+
+- **One-Click Saving:** Instantly add YouTube videos to your active list using a simple right-click context menu.
+- **Save From Anywhere:** Works seamlessly across YouTube—on the homepage, in subscription feeds, search results, and on video watch pages.
+- **Multi-List Organization:** Go beyond a single list. Create, name, and switch between multiple lists to organize your videos by topic, project, or any system you choose.
+- **Intuitive Popup Interface:** A clean and efficient popup to manage your lists and videos.
+    - View all videos in the currently selected list.
+    - Create new lists and delete old ones.
+    - Manually add the video you're currently watching.
+- **Flexible Export Options:**
+    - **Copy to Clipboard:** Copies your list in a spreadsheet-friendly TSV (Tab-Separated Values) format (`Title\tURL`).
+    - **Download as File:** Save your current video list as a `.txt` file for your records.
+- **In-List Actions:** Click any video in the popup to open a context menu to either navigate to the video's URL or remove it from the list.
+- **Privacy-Focused:** All your data is stored locally and privately on your computer. Nothing is ever tracked or sent to a server.
 
 ## How to Use
 
 1.  **Adding a Video:**
-    - **Right-Click:** On any YouTube page, right-click on a video link or thumbnail and select "Add video to CSV" from the context menu.
-    - **Popup Button:** While watching a video, click the extension icon in your browser's toolbar and then click the "Add Current Video" button.
+    - **Right-Click:** On any YouTube page, right-click a video link or thumbnail and select "Add video to active list" from the context menu.
+    - **Popup Button:** While watching a video, click the extension icon in your browser's toolbar and then click "Add Current Video to Selected List".
 
-2.  **Managing Your List:**
-    - Click the extension icon in your browser's toolbar to open the popup.
-    - **View:** Your saved videos are displayed in the text area.
+2.  **Managing Your Lists:**
+    - Click the extension icon to open the popup.
+    - **Switch Lists:** Use the dropdown menu to select your active list. Videos you save will be added here.
+    - **Create a List:** Type a name in the "Create new list..." input field and click the `+` button.
+    - **Delete a List:** Select a list from the dropdown and click "Delete List". You will be asked to confirm.
+
+3.  **Viewing and Exporting:**
+    - **View:** Your saved videos for the active list are displayed in the text area.
     - **Copy:** Click "Copy to Clipboard" to copy the entire list.
-    - **Clear:** Click "Clear List" to permanently delete all videos from your list.
+    - **Download:** Click "Download List" to save the list as a `.txt` file.
+    - **Clear:** Click "Clear This List" to permanently delete all videos from the active list.
 
 ## Installation
 
